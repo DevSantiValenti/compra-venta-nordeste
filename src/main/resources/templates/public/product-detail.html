@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="${metaTitle}">Producto</title>
+  <meta name="description" th:content="${metaDescription}">
+  <meta property="og:title" th:content="${metaTitle}">
+  <meta property="og:description" th:content="${metaDescription}">
+  <meta property="og:image" th:if="${ogImage != ''}" th:content="${ogImage}">
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+  <script defer th:src="@{/js/app.js}"></script>
+</head>
+<body>
+<div th:replace="~{fragments/header :: topbar}"></div>
+<main class="app-shell">
+  <div class="page-detail detail-grid">
+    <section class="gallery-card">
+      <img class="gallery-main" th:if="${product.mainImage != null}" th:src="${product.mainImage.filePath}" th:alt="${product.title}">
+      <div th:if="${product.mainImage == null}" class="gallery-main"></div>
+    </section>
+
+    <aside class="detail-panel">
+      <span class="badge badge-soft" th:text="${product.condition.name() == 'NEW' ? 'Nuevo' : 'Usado'}">Nuevo</span>
+      <h1 class="detail-title" th:text="${product.title}">Producto</h1>
+      <p class="detail-price" th:text="${'$' + #numbers.formatDecimal(product.price, 0, 'POINT', 0, 'COMMA')}">$0</p>
+
+      <div class="detail-specs">
+        <div class="spec-row">
+          <span>Marca</span>
+          <strong th:text="${#strings.isEmpty(product.brand) ? '-' : product.brand}">Marca</strong>
+        </div>
+        <div class="spec-row">
+          <span>Ubicación</span>
+          <strong th:text="${product.city + ', ' + product.province}">Ubicacion</strong>
+        </div>
+        <div class="spec-row" th:if="${!#strings.isEmpty(product.size)}">
+          <span>Talle / rodado</span>
+          <strong th:text="${product.size}">29</strong>
+        </div>
+      </div>
+
+      <div class="seller-box">
+        <div class="avatar" th:text="${product.seller.initials}">SV</div>
+        <div>
+          <strong th:text="${product.seller.fullName}">Vendedor</strong>
+          <p class="meta">En la plataforma desde 2026</p>
+        </div>
+      </div>
+
+      <a class="btn whatsapp" th:href="@{/producto/{slug}/whatsapp(slug=${product.slug})}">☏ Contactar por WhatsApp</a>
+
+      <div class="detail-actions">
+        <button class="detail-action favorite-action" type="button"
+                th:attr="data-favorite-product=${product.slug}"
+                aria-pressed="false">
+          <span class="detail-action-icon">♡</span>
+          <span class="detail-action-label">Favorito</span>
+        </button>
+        <button class="detail-action share-action" type="button"
+                th:attr="data-share-title=${product.title}, data-share-url=@{/producto/{slug}(slug=${product.slug})}">
+          <span class="detail-action-icon">⌯</span>
+          <span class="detail-action-label">Compartir</span>
+        </button>
+        <details class="report-panel">
+          <summary class="detail-action report-action">
+            <span class="detail-action-icon">△</span>
+            <span class="detail-action-label">Denunciar</span>
+          </summary>
+          <form class="report-form" th:action="@{/producto/{slug}/report(slug=${product.slug})}" method="post" th:object="${reportForm}">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <div class="field">
+              <label>Motivo</label>
+              <select th:field="*{reason}" required>
+                <option value="posible estafa">Posible estafa</option>
+                <option value="producto falso">Producto falso</option>
+                <option value="publicacion duplicada">Publicacion duplicada</option>
+                <option value="datos incorrectos">Datos incorrectos</option>
+                <option value="contenido inapropiado">Contenido inapropiado</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+            <div class="field"><label>Detalle</label><textarea th:field="*{detail}"></textarea></div>
+            <button class="btn danger full" type="submit">Enviar denuncia</button>
+          </form>
+        </details>
+        <form th:if="${currentUser != null && currentUser.role.name() == 'ADMIN'}"
+              th:action="@{/admin/products/{id}/delete(id=${product.id})}"
+              method="post"
+              class="admin-product-action">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+          <button class="detail-action admin-delete-action js-confirm-action" type="submit"
+                  data-confirm-icon="×"
+                  data-confirm-title="Eliminar publicación"
+                  th:attr="data-confirm-body=${'¿Seguro que querés eliminar &quot;' + product.title + '&quot;? Esta acción la saca definitivamente del listado.'}"
+                  data-confirm-label="Eliminar"
+                  data-confirm-danger="true">
+            <span class="detail-action-icon">×</span>
+            <span class="detail-action-label">Eliminar</span>
+          </button>
+        </form>
+      </div>
+    </aside>
+
+    <section class="description-card">
+      <h2 class="section-kicker">Descripción</h2>
+      <p th:text="${product.description}">Descripcion</p>
+    </section>
+  </div>
+</main>
+<div th:replace="~{fragments/nav :: bottomNav}"></div>
+<div th:replace="~{fragments/confirm-modal :: confirmModal}"></div>
+</body>
+</html>

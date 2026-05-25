@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="${metaTitle}">Categoria</title>
+  <meta name="description" th:content="${metaDescription}">
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div th:replace="~{fragments/header :: topbar}"></div>
+<main class="app-shell home-shell">
+  <div class="home-contained">
+    <section class="hero">
+      <h1 th:text="${category.name}">Categoria</h1>
+      <p>Publicaciones activas ordenadas por destacadas y recientes.</p>
+    </section>
+    <section class="product-grid">
+      <a class="product-card" th:each="product : ${products.content}" th:href="@{/producto/{slug}(slug=${product.slug})}">
+        <div class="product-card-media">
+          <span class="badge new-publication-badge" th:if="${product.newPublication}">Nueva Publicacion</span>
+          <span class="badge condition-badge" th:text="${product.condition.name() == 'NEW' ? 'Nuevo' : 'Usado'}">Nuevo</span>
+          <img th:if="${product.mainImage != null}" th:src="${product.mainImage.filePath}" th:alt="${product.title}" loading="lazy">
+          <div th:if="${product.mainImage == null}" class="image-placeholder"></div>
+        </div>
+        <div class="product-card-body">
+          <div class="location" th:text="${'⌖ ' + product.city}">⌖ Ciudad</div>
+          <h2 th:text="${product.title}">Producto</h2>
+          <p class="price" th:text="${'$' + #numbers.formatDecimal(product.price, 0, 'POINT', 0, 'COMMA')}">$0</p>
+        </div>
+      </a>
+    </section>
+  </div>
+</main>
+<div th:replace="~{fragments/nav :: bottomNav}"></div>
+</body>
+</html>

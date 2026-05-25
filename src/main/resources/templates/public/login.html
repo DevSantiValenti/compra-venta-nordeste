@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ingresar | Compra y Venta NEA</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div th:replace="~{fragments/header :: topbar}"></div>
+<main class="app-shell">
+  <section class="page-narrow form-panel">
+    <div class="auth-title">
+      <h1>Bienvenido</h1>
+      <p>Ingresa para vender y comprar</p>
+    </div>
+    <p class="success" th:if="${param.registered}">Cuenta creada. Ya podes iniciar sesion.</p>
+    <p class="error" th:if="${param.error}">Email o clave invalidos.</p>
+    <p class="error" th:if="${param.blocked}">Tu cuenta esta bloqueada.</p>
+
+    <a class="btn google-btn" th:if="${googleOAuthEnabled}" th:href="@{/oauth2/authorization/google}">
+      <span class="google-mark">G</span> Continuar con Google
+    </a>
+    <div class="divider">O usa tu email</div>
+
+    <form th:action="@{/login}" method="post">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+      <div class="field"><label>Email</label><input name="email" type="email" required></div>
+      <div class="field"><label>Contraseña</label><input name="password" type="password" required></div>
+      <button class="btn full" type="submit">Ingresar</button>
+    </form>
+    <p class="auth-footer">¿No tenes cuenta? <a th:href="@{/register}">Registrate gratis</a></p>
+  </section>
+</main>
+</body>
+</html>

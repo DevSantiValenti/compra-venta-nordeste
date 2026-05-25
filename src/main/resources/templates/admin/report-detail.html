@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Reporte</title><link rel="stylesheet" th:href="@{/css/app.css}"></head>
+<body>
+<div th:replace="~{fragments/header :: adminTopbar}"></div>
+<main class="app-shell">
+  <section class="detail-panel">
+    <h1 th:text="${report.type + ' · ' + report.reason}">Reporte</h1>
+    <p th:text="${report.detail}">Detalle</p>
+    <p class="meta" th:if="${report.product != null}" th:text="${'Producto: ' + report.product.title}">Producto</p>
+    <p class="meta" th:if="${report.reportedUser != null}" th:text="${'Usuario reportado: ' + report.reportedUser.email}">Usuario</p>
+    <form th:action="@{/admin/reports/{id}/approve(id=${report.id})}" method="post" class="form-panel">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+      <div class="field"><label>Comentario admin</label><textarea name="adminComment"></textarea></div>
+      <label><input type="checkbox" name="blockUser" value="true"> Bloquear usuario reportado</label>
+      <button class="btn danger" type="submit">Aprobar reporte</button>
+    </form>
+    <form th:action="@{/admin/reports/{id}/reject(id=${report.id})}" method="post" class="form-panel">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+      <div class="field"><label>Comentario admin</label><textarea name="adminComment"></textarea></div>
+      <button class="btn secondary" type="submit">Rechazar reporte</button>
+    </form>
+  </section>
+</main>
+</body>
+</html>

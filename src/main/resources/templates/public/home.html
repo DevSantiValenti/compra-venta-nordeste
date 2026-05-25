@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="${metaTitle}">Compra y Venta NEA</title>
+  <meta name="description" th:content="${metaDescription}">
+  <meta property="og:title" th:content="${metaTitle}">
+  <meta property="og:description" th:content="${metaDescription}">
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+  <script defer th:src="@{/js/app.js}"></script>
+</head>
+<body>
+<div th:replace="~{fragments/header :: topbar}"></div>
+<main class="app-shell home-shell">
+  <div class="home-contained">
+    <form class="search-panel" th:action="@{/}" method="get" th:object="${search}">
+      <div class="search-row">
+        <input type="search" th:field="*{q}" placeholder="Buscar bicicletas, repuestos...">
+        <button class="search-button" type="submit" aria-label="Buscar">⌕</button>
+      </div>
+
+      <div class="category-strip">
+        <button class="filter-toggle" type="button" data-filter-toggle="#filters">▽ Filtros</button>
+        <a class="chip active" th:href="@{/}">Todo</a>
+        <a class="chip" th:each="category : ${categories}" th:href="@{/categoria/{slug}(slug=${category.slug})}" th:text="${category.name}">Categoria</a>
+      </div>
+
+      <div id="filters" class="filters">
+        <div class="field">
+          <label>Precio min ($)</label>
+          <input th:field="*{minPrice}" type="number" min="0" placeholder="0">
+        </div>
+        <div class="field">
+          <label>Precio max ($)</label>
+          <input th:field="*{maxPrice}" type="number" min="0" placeholder="Sin limite">
+        </div>
+        <div class="field">
+          <label>Condicion</label>
+          <select th:field="*{condition}">
+            <option value="">Todas</option>
+            <option value="NEW">Nuevo</option>
+            <option value="USED">Usado</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Ciudad</label>
+          <input th:field="*{city}" placeholder="Ej. Resistencia">
+        </div>
+        <div class="field advanced-filter">
+          <label>Provincia</label>
+          <input th:field="*{province}" placeholder="Ej. Chaco">
+        </div>
+        <div class="field advanced-filter">
+          <label>Marca</label>
+          <input th:field="*{brand}" placeholder="Ej. Trek">
+        </div>
+        <div class="field advanced-filter">
+          <label>Talle / rodado</label>
+          <input th:field="*{size}" placeholder="Ej. M, 29">
+        </div>
+        <div class="filters-actions">
+          <a class="btn secondary full" th:href="@{/}">Limpiar</a>
+          <button class="btn full" type="submit">Aplicar</button>
+        </div>
+      </div>
+    </form>
+
+    <section class="product-grid">
+      <a class="product-card" th:each="product : ${products.content}" th:href="@{/producto/{slug}(slug=${product.slug})}">
+        <div class="product-card-media">
+          <span class="badge new-publication-badge" th:if="${product.newPublication}">Nueva Publicacion</span>
+          <span class="badge condition-badge" th:text="${product.condition.name() == 'NEW' ? 'Nuevo' : 'Usado'}">Nuevo</span>
+          <img th:if="${product.mainImage != null}" th:src="${product.mainImage.filePath}" th:alt="${product.title}" loading="lazy">
+          <div th:if="${product.mainImage == null}" class="image-placeholder"></div>
+        </div>
+        <div class="product-card-body">
+          <div class="location" th:text="${'⌖ ' + product.city}">⌖ Ciudad</div>
+          <h2 th:text="${product.title}">Producto</h2>
+          <p class="price" th:text="${'$' + #numbers.formatDecimal(product.price, 0, 'POINT', 0, 'COMMA')}">$0</p>
+        </div>
+      </a>
+    </section>
+  </div>
+</main>
+<div th:replace="~{fragments/nav :: bottomNav}"></div>
+</body>
+</html>

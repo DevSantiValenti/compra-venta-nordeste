@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Reportes</title><link rel="stylesheet" th:href="@{/css/app.css}"></head>
+<body>
+<div th:replace="~{fragments/header :: adminTopbar}"></div>
+<main class="app-shell">
+  <section class="hero"><h1>Reportes pendientes</h1></section>
+  <section class="table-list">
+    <a class="row-card" th:each="report : ${reports}" th:href="@{/admin/reports/{id}(id=${report.id})}">
+      <strong th:text="${report.type + ' · ' + report.reason}">Reporte</strong>
+      <p class="meta" th:text="${#temporals.format(report.createdAt, 'dd/MM/yyyy HH:mm')}">Fecha</p>
+    </a>
+  </section>
+</main>
+</body>
+</html>

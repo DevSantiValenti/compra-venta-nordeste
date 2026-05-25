@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Publicar | Compra y Venta NEA</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+  <script defer th:src="@{/js/app.js(v=20260522)}"></script>
+</head>
+<body>
+<div th:replace="~{fragments/header :: topbar}"></div>
+<main class="app-shell">
+  <form class="form-panel publish-form" th:action="@{${formAction}}" method="post" enctype="multipart/form-data" th:object="${productForm}">
+    <h1 th:text="${product == null ? 'Publicar Articulo' : 'Editar Articulo'}">Publicar Articulo</h1>
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+    <input type="hidden" th:field="*{city}">
+    <input type="hidden" th:field="*{province}">
+
+    <div class="field"><label>Titulo</label><input th:field="*{title}" required maxlength="160" placeholder="Ej. Bicicleta Venzo Rodado 29"></div>
+    <div class="form-grid two">
+      <div class="field"><label>Precio ($)</label><input th:field="*{price}" type="number" min="1" step="0.01" required placeholder="0"></div>
+      <div class="field"><label>Estado</label>
+        <select th:field="*{condition}">
+          <option value="USED">Usado</option>
+          <option value="NEW">Nuevo</option>
+        </select>
+      </div>
+    </div>
+    <div class="field"><label>Categoria</label>
+      <select th:field="*{categoryId}" required>
+        <option value="">Seleccionar...</option>
+        <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"></option>
+      </select>
+    </div>
+    <div class="form-grid two">
+      <div class="field"><label>Talle / rodado</label><input th:field="*{size}" placeholder="Ej. L, 54, 29"></div>
+      <div class="field"><label>Marca (opcional)</label><input th:field="*{brand}" placeholder="Ej. Trek"></div>
+    </div>
+    <div class="field"><label>Descripcion</label><textarea th:field="*{description}" required placeholder="Detalles del producto, estado, etc."></textarea></div>
+    <p class="error form-error" th:if="${imageError}" th:text="${imageError}">Error de imagen</p>
+    <div class="field">
+      <label>Imagenes (max 5)</label>
+      <input id="productImages" name="images" type="file" accept="image/jpeg,image/png" multiple data-image-preview="#selectedImagePreview">
+    </div>
+    <div id="selectedImagePreview" class="image-preview-strip" aria-live="polite"></div>
+    <div class="image-preview-strip" th:if="${product != null}">
+      <img th:each="image : ${product.images}" th:src="${image.filePath}" th:alt="${product.title}">
+    </div>
+    <button class="btn full" type="submit" th:text="${product == null ? 'Publicar' : 'Guardar Cambios'}">Publicar</button>
+  </form>
+</main>
+<div th:replace="~{fragments/nav :: bottomNav}"></div>
+</body>
+</html>

@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Usuarios</title><link rel="stylesheet" th:href="@{/css/app.css}"></head>
+<body>
+<div th:replace="~{fragments/header :: adminTopbar}"></div>
+<main class="app-shell">
+  <section class="hero"><h1>Usuarios</h1></section>
+  <section class="table-list">
+    <a class="row-card" th:each="user : ${users}" th:href="@{/admin/users/{id}(id=${user.id})}">
+      <strong th:text="${user.fullName}">Usuario</strong>
+      <p class="meta" th:text="${user.email + ' · ' + user.role + ' · bloqueado: ' + user.blocked}">Email</p>
+    </a>
+  </section>
+</main>
+</body>
+</html>

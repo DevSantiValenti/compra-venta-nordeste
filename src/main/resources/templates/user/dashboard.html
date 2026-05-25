@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mi Area | Compra y Venta NEA</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+  <script defer th:src="@{/js/app.js}"></script>
+</head>
+<body>
+<div th:replace="~{fragments/header :: topbar}"></div>
+<main class="app-shell">
+  <div class="page-wide">
+    <div class="area-head">
+      <h1>Mi Área</h1>
+      <nav class="tabs">
+        <a class="active" th:href="@{/user/dashboard}">Panel</a>
+        <a th:href="@{/user/favorites}">Favoritos</a>
+        <a th:href="@{/user/profile}">Mis Datos</a>
+      </nav>
+    </div>
+
+    <section class="stats-grid">
+      <article class="stat-card"><div><div class="stat-icon">✓</div><p class="stat-value" th:text="${activeCount}">0</p><p class="stat-label">Activos</p></div></article>
+      <article class="stat-card"><div><div class="stat-icon">⊙</div><p class="stat-value" th:text="${totalViews}">0</p><p class="stat-label">Vistas</p></div></article>
+      <article class="stat-card"><div><div class="stat-icon">☏</div><p class="stat-value" th:text="${totalWhatsapp}">0</p><p class="stat-label">Clics JS</p></div></article>
+      <article class="stat-card"><div><div class="stat-icon">◷</div><p class="stat-value" th:text="${activeCount + soldCount}">0</p><p class="stat-label">Total</p></div></article>
+    </section>
+
+    <div class="section-row">
+      <h2 class="section-kicker">Mis publicaciones</h2>
+      <a class="btn pill small" th:href="@{/products/new}">Nueva Publicación</a>
+    </div>
+
+    <section class="table-list">
+      <article class="row-card" th:each="product : ${products.content}">
+        <img th:if="${product.mainImage != null}" th:src="${product.mainImage.filePath}" th:alt="${product.title}">
+        <div th:if="${product.mainImage == null}" class="row-thumb"></div>
+        <div>
+          <strong th:text="${product.title}">Producto</strong>
+          <p class="price" th:text="${'$' + #numbers.formatDecimal(product.price, 0, 'POINT', 0, 'COMMA')}">$0</p>
+          <p class="meta" th:text="${'⊙ ' + product.viewsCount + '   ☏ ' + product.whatsappClicksCount}">Metricas</p>
+        </div>
+        <div class="row-actions">
+          <span th:class="'status-pill status-' + ${#strings.toLowerCase(product.status.name())}"
+                th:text="${product.status.name() == 'ACTIVE' ? 'Activa' : (product.status.name() == 'HIDDEN' ? 'Pausada' : (product.status.name() == 'SOLD' ? 'Vendido' : (product.status.name() == 'EXPIRED' ? 'Vencida' : 'Eliminada')))}">Activa</span>
+          <a class="action-button view" data-icon="◉" aria-label="Ver publicación" th:href="@{/producto/{slug}(slug=${product.slug})}"><span>Ver</span></a>
+          <a class="action-button edit" data-icon="✎" aria-label="Editar publicación" th:href="@{/products/edit/{id}(id=${product.id})}"><span>Editar</span></a>
+          <form th:action="@{/products/{id}/sold(id=${product.id})}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <input type="hidden" name="returnTo" value="/user/dashboard">
+            <button type="submit" class="action-button sold js-confirm-action" data-icon="$" aria-label="Marcar como vendido"
+                    data-confirm-icon="$"
+                    data-confirm-title="Marcar como vendido"
+                    th:attr="data-confirm-body=${'¿Querés marcar &quot;' + product.title + '&quot; como vendido?'}"
+                    data-confirm-label="Marcar vendido"><span>Vendido</span></button>
+          </form>
+          <form th:action="@{/products/{id}/toggle-active(id=${product.id})}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <input type="hidden" name="returnTo" value="/user/dashboard">
+            <button type="submit"
+                    th:class="${product.status.name() == 'ACTIVE' ? 'action-button pause js-confirm-action' : 'action-button activate js-confirm-action'}"
+                    th:attr="data-icon=${product.status.name() == 'ACTIVE' ? 'Ⅱ' : '✓'},
+                             aria-label=${product.status.name() == 'ACTIVE' ? 'Pausar publicación' : 'Activar publicación'},
+                             data-confirm-title=${product.status.name() == 'ACTIVE' ? 'Pausar publicación' : 'Activar publicación'},
+                             data-confirm-body=${product.status.name() == 'ACTIVE' ? 'La publicación dejará de aparecer en el marketplace.' : 'La publicación volverá a aparecer en el marketplace.'},
+                             data-confirm-label=${product.status.name() == 'ACTIVE' ? 'Pausar' : 'Activar'},
+                             data-confirm-icon=${product.status.name() == 'ACTIVE' ? 'Ⅱ' : '✓'}">
+              <span th:text="${product.status.name() == 'ACTIVE' ? 'Pausar' : 'Activar'}">Pausar</span>
+            </button>
+          </form>
+          <form th:action="@{/products/{id}/delete(id=${product.id})}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <input type="hidden" name="returnTo" value="/user/dashboard">
+            <button type="submit" class="action-button delete js-confirm-action" data-icon="×" aria-label="Eliminar publicación"
+                    data-confirm-icon="×"
+                    data-confirm-title="Eliminar publicación"
+                    th:attr="data-confirm-body=${'¿Seguro que querés eliminar &quot;' + product.title + '&quot;? Esta acción la saca definitivamente del listado.'}"
+                    data-confirm-label="Eliminar"
+                    data-confirm-danger="true"><span>Eliminar</span></button>
+          </form>
+        </div>
+      </article>
+      <div class="empty-card" th:if="${products.content.isEmpty()}">Todavia no tenes publicaciones.</div>
+    </section>
+  </div>
+</main>
+<div th:replace="~{fragments/nav :: bottomNav}"></div>
+<div th:replace="~{fragments/confirm-modal :: confirmModal}"></div>
+</body>
+</html>

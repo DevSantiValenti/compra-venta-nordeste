@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mis Datos | Compra y Venta NEA</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div th:replace="~{fragments/header :: topbar}"></div>
+<main class="app-shell">
+  <div class="page-wide">
+    <div class="area-head">
+      <h1>Mi Área</h1>
+      <nav class="tabs">
+        <a th:href="@{/user/dashboard}">Panel</a>
+        <a th:href="@{/user/favorites}">Favoritos</a>
+        <a class="active" th:href="@{/user/profile}">Mis Datos</a>
+      </nav>
+    </div>
+
+    <section class="form-panel profile-form-panel">
+      <form th:action="@{/user/profile}" method="post" th:object="${profileForm}">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <h2 class="section-kicker">Modificar perfil</h2>
+        <p class="success" th:if="${param.saved}">Datos actualizados.</p>
+        <div class="form-grid two">
+          <div class="field"><label>Nombre</label><input th:field="*{firstName}" required></div>
+          <div class="field"><label>Apellido</label><input th:field="*{lastName}" required></div>
+        </div>
+        <div class="field"><label>WhatsApp (con codigo de area)</label><input th:field="*{phone}" required></div>
+        <div class="form-grid two">
+          <div class="field"><label>Ciudad</label><input th:field="*{city}" required></div>
+          <div class="field"><label>Provincia</label><input th:field="*{province}" required></div>
+        </div>
+        <button class="btn full" type="submit">Guardar Cambios</button>
+      </form>
+    </section>
+  </div>
+</main>
+<div th:replace="~{fragments/nav :: bottomNav}"></div>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Favoritos | Compra y Venta NEA</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div th:replace="~{fragments/header :: topbar}"></div>
+<main class="app-shell">
+  <div class="page-wide">
+    <div class="area-head">
+      <h1>Mi Área</h1>
+      <nav class="tabs">
+        <a th:href="@{/user/dashboard}">Panel</a>
+        <a class="active" th:href="@{/user/favorites}">Favoritos</a>
+        <a th:href="@{/user/profile}">Mis Datos</a>
+      </nav>
+    </div>
+    <h2 class="section-kicker">Mis favoritos</h2>
+    <section class="empty-card">No tienes productos en favoritos.</section>
+  </div>
+</main>
+<div th:replace="~{fragments/nav :: bottomNav}"></div>
+</body>
+</html>

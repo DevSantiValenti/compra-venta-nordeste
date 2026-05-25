@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin | Ciclismo NEA</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div th:replace="~{fragments/header :: adminTopbar}"></div>
+<main class="app-shell">
+  <section class="hero admin-hero">
+    <p class="eyebrow">Admin</p>
+    <h1>Dashboard admin</h1>
+    <p>Estado general del marketplace, actividad y moderacion.</p>
+  </section>
+
+  <section class="admin-metric-section">
+    <div class="section-row"><h2>Usuarios</h2><a class="btn secondary small" th:href="@{/admin/users}">Ver usuarios</a></div>
+    <div class="stats-grid admin-stats">
+      <article class="stat-card"><p class="stat-value" th:text="${stats.totalUsers}">0</p><p class="stat-label">Total usuarios</p></article>
+      <article class="stat-card"><p class="stat-value" th:text="${stats.usersToday}">0</p><p class="stat-label">Nuevos hoy</p></article>
+      <article class="stat-card"><p class="stat-value" th:text="${stats.usersWeek}">0</p><p class="stat-label">Nuevos semana</p></article>
+      <article class="stat-card"><p class="stat-value" th:text="${stats.usersMonth}">0</p><p class="stat-label">Nuevos mes</p></article>
+      <article class="stat-card attention"><p class="stat-value" th:text="${stats.blockedUsers}">0</p><p class="stat-label">Bloqueados</p></article>
+    </div>
+  </section>
+
+  <section class="admin-metric-section">
+    <div class="section-row"><h2>Publicaciones</h2><a class="btn secondary small" th:href="@{/admin/products}">Ver publicaciones</a></div>
+    <div class="stats-grid admin-stats">
+      <article class="stat-card"><p class="stat-value" th:text="${stats.totalProducts}">0</p><p class="stat-label">Total publicaciones</p></article>
+      <article class="stat-card"><p class="stat-value" th:text="${stats.productsToday}">0</p><p class="stat-label">Nuevas hoy</p></article>
+      <article class="stat-card"><p class="stat-value" th:text="${stats.productsWeek}">0</p><p class="stat-label">Nuevas semana</p></article>
+      <article class="stat-card"><p class="stat-value" th:text="${stats.productsMonth}">0</p><p class="stat-label">Nuevas mes</p></article>
+      <article class="stat-card success-soft"><p class="stat-value" th:text="${stats.activeProducts}">0</p><p class="stat-label">Activas</p></article>
+      <article class="stat-card"><p class="stat-value" th:text="${stats.hiddenProducts}">0</p><p class="stat-label">Ocultas</p></article>
+      <article class="stat-card"><p class="stat-value" th:text="${stats.soldProducts}">0</p><p class="stat-label">Vendidas</p></article>
+      <article class="stat-card"><p class="stat-value" th:text="${stats.featuredProducts}">0</p><p class="stat-label">Destacadas</p></article>
+    </div>
+  </section>
+
+  <section class="admin-metric-section">
+    <div class="section-row"><h2>Actividad</h2><a class="btn secondary small" th:href="@{/admin/reports}">Ver reportes</a></div>
+    <div class="stats-grid admin-stats">
+      <article class="stat-card"><p class="stat-value" th:text="${stats.totalSiteViews}">0</p><p class="stat-label">Vistas sitio</p></article>
+      <article class="stat-card"><p class="stat-value" th:text="${stats.siteViewsToday}">0</p><p class="stat-label">Vistas sitio hoy</p></article>
+      <article class="stat-card"><p class="stat-value" th:text="${stats.siteViewsWeek}">0</p><p class="stat-label">Vistas sitio semana</p></article>
+      <article class="stat-card"><p class="stat-value" th:text="${stats.siteViewsMonth}">0</p><p class="stat-label">Vistas sitio mes</p></article>
+      <article class="stat-card"><p class="stat-value" th:text="${stats.totalProductViews}">0</p><p class="stat-label">Vistas publicaciones</p></article>
+      <article class="stat-card"><p class="stat-value" th:text="${stats.totalWhatsappClicks}">0</p><p class="stat-label">Clicks WhatsApp</p></article>
+      <article class="stat-card attention"><p class="stat-value" th:text="${stats.pendingReports}">0</p><p class="stat-label">Reportes pendientes</p></article>
+    </div>
+  </section>
+
+  <section class="admin-top-grid">
+    <article class="admin-card">
+      <h2>Top vistas</h2>
+      <a class="admin-list-row" th:each="product : ${stats.topViewed}" th:href="@{/admin/products/{id}(id=${product.id})}">
+        <span th:text="${product.title}">Producto</span>
+        <strong th:text="${product.viewsCount}">0</strong>
+      </a>
+      <p class="meta" th:if="${#lists.isEmpty(stats.topViewed)}">Sin publicaciones con vistas.</p>
+    </article>
+    <article class="admin-card">
+      <h2>Top WhatsApp</h2>
+      <a class="admin-list-row" th:each="product : ${stats.topWhatsapp}" th:href="@{/admin/products/{id}(id=${product.id})}">
+        <span th:text="${product.title}">Producto</span>
+        <strong th:text="${product.whatsappClicksCount}">0</strong>
+      </a>
+      <p class="meta" th:if="${#lists.isEmpty(stats.topWhatsapp)}">Sin clicks registrados.</p>
+    </article>
+    <article class="admin-card">
+      <h2>Categorias con mas publicaciones</h2>
+      <div class="admin-list-row" th:each="row : ${stats.categories}">
+        <span th:text="${row[0]}">Categoria</span>
+        <strong th:text="${row[1]}">0</strong>
+      </div>
+      <p class="meta" th:if="${#lists.isEmpty(stats.categories)}">Sin categorias con publicaciones.</p>
+    </article>
+  </section>
+</main>
+</body>
+</html>

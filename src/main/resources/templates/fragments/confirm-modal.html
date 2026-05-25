@@ -1,0 +1,12 @@
+<div class="confirm-modal" id="confirmModal" aria-hidden="true" th:fragment="confirmModal" xmlns:th="http://www.thymeleaf.org">
+  <div class="confirm-backdrop" data-confirm-cancel></div>
+  <section class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="confirm-icon" id="confirmIcon">!</div>
+    <h2 id="confirmTitle">Confirmar acción</h2>
+    <p id="confirmBody">Esta acción modificará la publicación.</p>
+    <div class="confirm-actions">
+      <button type="button" class="btn secondary" data-confirm-cancel>Cancelar</button>
+      <button type="button" class="btn danger" id="confirmSubmit">Confirmar</button>
+    </div>
+  </section>
+</div>
