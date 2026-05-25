@@ -7,17 +7,21 @@ import com.marketplace.entity.ProductStatus;
 import com.marketplace.entity.User;
 import com.marketplace.repository.ProductRepository;
 import com.marketplace.service.CurrentUserService;
+import com.marketplace.service.FavoriteService;
 import com.marketplace.service.ProductService;
 import com.marketplace.service.UserService;
 import jakarta.validation.Valid;
+import java.util.Map;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 @Controller
@@ -26,12 +30,14 @@ public class UserProductController {
     private final ProductService productService;
     private final ProductRepository productRepository;
     private final UserService userService;
+    private final FavoriteService favoriteService;
 
-    public UserProductController(CurrentUserService currentUserService, ProductService productService, ProductRepository productRepository, UserService userService) {
+    public UserProductController(CurrentUserService currentUserService, ProductService productService, ProductRepository productRepository, UserService userService, FavoriteService favoriteService) {
         this.currentUserService = currentUserService;
         this.productService = productService;
         this.productRepository = productRepository;
         this.userService = userService;
+        this.favoriteService = favoriteService;
     }
 
     @GetMapping("/user/dashboard")
@@ -46,9 +52,24 @@ public class UserProductController {
     }
 
     @GetMapping("/user/favorites")
-    public String favorites() {
-        currentUserService.requireUser();
+    public String favorites(Model model) {
+        User user = currentUserService.requireUser();
+        model.addAttribute("products", favoriteService.productsFor(user));
         return "user/favorites";
+    }
+
+    @PostMapping("/user/favorites/{slug}")
+    @ResponseBody
+    public Map<String, Boolean> addFavorite(@PathVariable String slug) {
+        favoriteService.add(currentUserService.requireUser(), slug);
+        return Map.of("favorite", true);
+    }
+
+    @DeleteMapping("/user/favorites/{slug}")
+    @ResponseBody
+    public Map<String, Boolean> removeFavorite(@PathVariable String slug) {
+        favoriteService.remove(currentUserService.requireUser(), slug);
+        return Map.of("favorite", false);
     }
 
     @GetMapping("/user/profile")
@@ -65,12 +86,36 @@ public class UserProductController {
     }
 
     @PostMapping("/user/profile")
-    public String updateProfile(@Valid ProfileForm profileForm, BindingResult bindingResult) {
+    public String updateProfile(@Valid ProfileForm profileForm, BindingResult bindingResult, @RequestParam(value = "avatar", required = false) MultipartFile avatar, Model model) {
         if (bindingResult.hasErrors()) {
             return "user/profile";
         }
-        userService.updateProfile(currentUserService.requireUser(), profileForm);
-        return "redirect:/user/profile?saved";
+        try {
+            userService.updateProfile(currentUserService.requireUser(), profileForm, avatar);
+            return "redirect:/user/profile?saved";
+        } catch (IllegalArgumentException ex) {
+            model.addAttribute("avatarError", ex.getMessage());
+            return "user/profile";
+        }
+    }
+
+    @PostMapping("/user/profile/avatar")
+    public String updateAvatar(@RequestParam("avatar") MultipartFile avatar, Model model) {
+        try {
+            userService.updateAvatar(currentUserService.requireUser(), avatar);
+            return "redirect:/user/profile?avatarSaved";
+        } catch (IllegalArgumentException ex) {
+            User user = currentUserService.requireUser();
+            ProfileForm form = new ProfileForm();
+            form.setFirstName(user.getFirstName());
+            form.setLastName(user.getLastName());
+            form.setPhone(user.getPhone());
+            form.setCity(user.getCity());
+            form.setProvince(user.getProvince());
+            model.addAttribute("profileForm", form);
+            model.addAttribute("avatarError", ex.getMessage());
+            return "user/profile";
+        }
     }
 
     @GetMapping("/products/my")

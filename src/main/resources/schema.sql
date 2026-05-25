@@ -75,6 +75,19 @@ CREATE TABLE IF NOT EXISTS product_images (
   CONSTRAINT fk_product_images_product FOREIGN KEY (product_id) REFERENCES products (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS product_favorites (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  user_id BIGINT NOT NULL,
+  product_id BIGINT NOT NULL,
+  created_at DATETIME(6) NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_product_favorites_user_product (user_id, product_id),
+  KEY idx_product_favorites_user (user_id),
+  KEY idx_product_favorites_product (product_id),
+  CONSTRAINT fk_product_favorites_user FOREIGN KEY (user_id) REFERENCES users (id),
+  CONSTRAINT fk_product_favorites_product FOREIGN KEY (product_id) REFERENCES products (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS product_view_events (
   id BIGINT NOT NULL AUTO_INCREMENT,
   product_id BIGINT NOT NULL,

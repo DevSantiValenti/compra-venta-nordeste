@@ -5,8 +5,18 @@
 <div th:replace="~{fragments/header :: adminTopbar}"></div>
 <main class="app-shell">
   <section class="detail-panel">
-    <h1 th:text="${user.fullName}">Usuario</h1>
-    <p class="meta" th:text="${user.email}">Email</p>
+    <div class="user-detail-head">
+      <div class="avatar user-detail-avatar">
+        <img th:if="${user.avatarUrl != null && !user.avatarUrl.isBlank()}"
+             th:src="${user.avatarUrl}"
+             th:alt="${'Foto de ' + user.fullName}">
+        <span th:if="${user.avatarUrl == null || user.avatarUrl.isBlank()}" th:text="${user.initials}">UN</span>
+      </div>
+      <div>
+        <h1 th:text="${user.fullName}">Usuario</h1>
+        <p class="meta" th:text="${user.email}">Email</p>
+      </div>
+    </div>
     <p class="meta" th:text="${user.phone + ' · ' + user.city + ', ' + user.province}">Datos</p>
     <p class="meta" th:text="${'Rol: ' + user.role + ' · verificado: ' + user.verified + ' · bloqueado: ' + user.blocked}">Estado</p>
     <div class="row-actions">

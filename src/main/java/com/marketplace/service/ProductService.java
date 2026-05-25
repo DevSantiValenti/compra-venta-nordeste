@@ -9,6 +9,7 @@ import com.marketplace.entity.User;
 import com.marketplace.exception.NotFoundException;
 import com.marketplace.repository.ProductRepository;
 import com.marketplace.util.SlugUtil;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,9 +29,12 @@ public class ProductService {
     }
 
     public Page<Product> search(ProductSearch search, Pageable pageable) {
+        List<Long> activeCategoryIds = activeCategoryIds(search);
+        List<Long> queryCategoryIds = activeCategoryIds.isEmpty() ? List.of(-1L) : activeCategoryIds;
         return productRepository.searchActive(
             blankToNull(search.getQ()),
-            search.getCategoryId(),
+            queryCategoryIds,
+            !activeCategoryIds.isEmpty(),
             search.getMinPrice(),
             search.getMaxPrice(),
             blankToNull(search.getCity()),
@@ -40,6 +44,16 @@ public class ProductService {
             blankToNull(search.getSize()),
             pageable
         );
+    }
+
+    private List<Long> activeCategoryIds(ProductSearch search) {
+        if (search.getCategoryIds() == null) {
+            return List.of();
+        }
+        return search.getCategoryIds().stream()
+            .filter(id -> id != null && id > 0)
+            .distinct()
+            .toList();
     }
 
     public Product activeBySlug(String slug) {

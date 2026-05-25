@@ -10,6 +10,7 @@ import com.marketplace.entity.ProductStatus;
 import com.marketplace.repository.ProductRepository;
 import com.marketplace.service.CategoryService;
 import com.marketplace.service.CurrentUserService;
+import com.marketplace.service.FavoriteService;
 import com.marketplace.service.MetricsService;
 import com.marketplace.service.ProductService;
 import com.marketplace.service.ReportService;
@@ -39,6 +40,7 @@ public class PublicController {
     private final CurrentUserService currentUserService;
     private final ProductRepository productRepository;
     private final AppProperties appProperties;
+    private final FavoriteService favoriteService;
 
     public PublicController(
         ProductService productService,
@@ -48,7 +50,8 @@ public class PublicController {
         ReportService reportService,
         CurrentUserService currentUserService,
         ProductRepository productRepository,
-        AppProperties appProperties
+        AppProperties appProperties,
+        FavoriteService favoriteService
     ) {
         this.productService = productService;
         this.categoryService = categoryService;
@@ -58,6 +61,7 @@ public class PublicController {
         this.currentUserService = currentUserService;
         this.productRepository = productRepository;
         this.appProperties = appProperties;
+        this.favoriteService = favoriteService;
     }
 
     @GetMapping("/")
@@ -88,6 +92,9 @@ public class PublicController {
         model.addAttribute("metaTitle", product.getTitle() + " | " + appProperties.siteName());
         model.addAttribute("metaDescription", product.getDescription().length() > 150 ? product.getDescription().substring(0, 150) : product.getDescription());
         model.addAttribute("ogImage", product.getMainImage() == null ? "" : product.getMainImage().getFilePath());
+        model.addAttribute("favoriteActive", currentUserService.currentUser()
+            .map(user -> favoriteService.isFavorite(user, product))
+            .orElse(false));
         return "public/product-detail";
     }
 

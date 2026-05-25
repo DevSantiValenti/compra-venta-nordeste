@@ -2,6 +2,8 @@ package com.marketplace.dto;
 
 import com.marketplace.entity.ProductCondition;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,7 +11,7 @@ import lombok.Setter;
 @Setter
 public class ProductSearch {
     private String q;
-    private Long categoryId;
+    private List<Long> categoryIds = new ArrayList<>();
     private BigDecimal minPrice;
     private BigDecimal maxPrice;
     private String city;

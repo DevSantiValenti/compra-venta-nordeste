@@ -13,7 +13,7 @@
 <body>
 <div th:replace="~{fragments/header :: topbar}"></div>
 <main class="app-shell home-shell">
-  <div class="home-contained">
+  <div class="home-contained home-layout">
     <form class="search-panel" th:action="@{/}" method="get" th:object="${search}">
       <div class="search-row">
         <input type="search" th:field="*{q}" placeholder="Buscar bicicletas, repuestos...">
@@ -22,8 +22,18 @@
 
       <div class="category-strip">
         <button class="filter-toggle" type="button" data-filter-toggle="#filters">▽ Filtros</button>
-        <a class="chip active" th:href="@{/}">Todo</a>
-        <a class="chip" th:each="category : ${categories}" th:href="@{/categoria/{slug}(slug=${category.slug})}" th:text="${category.name}">Categoria</a>
+        <a class="chip" th:classappend="${#lists.isEmpty(search.categoryIds)} ? ' active' : ''" th:href="@{/}">Todo</a>
+        <label class="chip category-chip"
+               th:each="category : ${categories}"
+               th:classappend="${#lists.contains(search.categoryIds, category.id)} ? ' active' : ''">
+          <input class="chip-input"
+                 type="checkbox"
+                 name="categoryIds"
+                 th:value="${category.id}"
+                 th:checked="${#lists.contains(search.categoryIds, category.id)}"
+                 data-auto-submit>
+          <span th:text="${category.name}">Categoria</span>
+        </label>
       </div>
 
       <div id="filters" class="filters">

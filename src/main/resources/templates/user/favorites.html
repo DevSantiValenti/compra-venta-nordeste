@@ -19,7 +19,22 @@
       </nav>
     </div>
     <h2 class="section-kicker">Mis favoritos</h2>
-    <section class="empty-card">No tienes productos en favoritos.</section>
+    <section class="product-grid" th:if="${!#lists.isEmpty(products)}">
+      <a class="product-card" th:each="product : ${products}" th:href="@{/producto/{slug}(slug=${product.slug})}">
+        <div class="product-card-media">
+          <span class="badge new-publication-badge" th:if="${product.newPublication}">Nueva Publicacion</span>
+          <span class="badge condition-badge" th:text="${product.condition.name() == 'NEW' ? 'Nuevo' : 'Usado'}">Nuevo</span>
+          <img th:if="${product.mainImage != null}" th:src="${product.mainImage.filePath}" th:alt="${product.title}" loading="lazy">
+          <div th:if="${product.mainImage == null}" class="image-placeholder"></div>
+        </div>
+        <div class="product-card-body">
+          <div class="location" th:text="${'⌖ ' + product.city}">⌖ Ciudad</div>
+          <h2 th:text="${product.title}">Producto</h2>
+          <p class="price" th:text="${'$' + #numbers.formatDecimal(product.price, 0, 'POINT', 0, 'COMMA')}">$0</p>
+        </div>
+      </a>
+    </section>
+    <section class="empty-card" th:if="${#lists.isEmpty(products)}">No tenes productos en favoritos.</section>
   </div>
 </main>
 <div th:replace="~{fragments/nav :: bottomNav}"></div>

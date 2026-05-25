@@ -6,6 +6,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  document.querySelectorAll("[data-auto-submit]").forEach((input) => {
+    input.addEventListener("change", () => {
+      input.form?.requestSubmit();
+    });
+  });
+
   document.querySelectorAll("[data-image-preview]").forEach((input) => {
     input.addEventListener("change", () => {
       const target = document.querySelector(input.dataset.imagePreview);
@@ -47,10 +53,21 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  document.querySelectorAll("[data-avatar-upload]").forEach((input) => {
+    input.addEventListener("change", () => {
+      const file = input.files && input.files[0];
+      if (!file || !["image/jpeg", "image/png"].includes(file.type)) return;
+      window.setTimeout(() => input.form?.requestSubmit(), 120);
+    });
+  });
+
   document.querySelectorAll("[data-favorite-product]").forEach((button) => {
-    const key = `favorite:${button.dataset.favoriteProduct}`;
-    const applyState = () => {
-      const active = localStorage.getItem(key) === "true";
+    const csrfToken = document.querySelector("meta[name='_csrf']")?.getAttribute("content");
+    const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.getAttribute("content");
+    const slug = button.dataset.favoriteProduct;
+    const authenticated = button.dataset.favoriteAuthenticated === "true";
+
+    const applyState = (active) => {
       button.classList.toggle("active", active);
       button.setAttribute("aria-pressed", String(active));
       const label = button.querySelector(".detail-action-label");
@@ -59,11 +76,23 @@ document.addEventListener("DOMContentLoaded", () => {
       if (icon) icon.textContent = active ? "♥" : "♡";
     };
 
-    applyState();
-    button.addEventListener("click", () => {
-      const active = localStorage.getItem(key) === "true";
-      localStorage.setItem(key, String(!active));
-      applyState();
+    applyState(button.getAttribute("aria-pressed") === "true");
+    button.addEventListener("click", async () => {
+      if (!authenticated) {
+        window.location.href = "/login";
+        return;
+      }
+
+      const active = button.getAttribute("aria-pressed") === "true";
+      const headers = csrfToken && csrfHeader ? { [csrfHeader]: csrfToken } : {};
+      const response = await fetch(`/user/favorites/${encodeURIComponent(slug)}`, {
+        method: active ? "DELETE" : "POST",
+        headers
+      });
+
+      if (!response.ok) return;
+      const body = await response.json();
+      applyState(body.favorite === true);
     });
   });
 

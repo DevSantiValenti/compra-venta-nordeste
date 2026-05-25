@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Mis Datos | Compra y Venta NEA</title>
   <link rel="stylesheet" th:href="@{/css/app.css}">
+  <script defer th:src="@{/js/app.js}"></script>
 </head>
 <body>
 <div th:replace="~{fragments/header :: topbar}"></div>
@@ -20,10 +21,36 @@
     </div>
 
     <section class="form-panel profile-form-panel">
+      <h2 class="section-kicker">Modificar perfil</h2>
+      <p class="success" th:if="${param.saved}">Datos actualizados.</p>
+      <p class="success" th:if="${param.avatarSaved}">Foto de perfil actualizada.</p>
+      <form class="avatar-form" th:action="@{/user/profile/avatar}" method="post" enctype="multipart/form-data">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <div class="profile-avatar">
+          <img th:if="${currentUser.avatarUrl != null && !currentUser.avatarUrl.isBlank()}"
+               th:src="${currentUser.avatarUrl}"
+               th:alt="${'Foto de ' + currentUser.fullName}">
+          <div th:if="${currentUser.avatarUrl == null || currentUser.avatarUrl.isBlank()}"
+               class="profile-avatar-placeholder"
+               th:text="${currentUser.initials}">SV</div>
+        </div>
+        <div>
+          <label class="avatar-upload-button" for="avatar">Cambiar foto de perfil</label>
+          <input id="avatar"
+                 class="sr-only"
+                 type="file"
+                 name="avatar"
+                 accept="image/jpeg,image/png"
+                 data-image-preview="#avatarPreview"
+                 data-avatar-upload>
+          <p class="meta">JPG o PNG. Se reemplaza la foto anterior automaticamente.</p>
+          <p class="error" th:if="${avatarError}" th:text="${avatarError}">Error</p>
+          <div id="avatarPreview" class="image-preview avatar-preview"></div>
+        </div>
+      </form>
+
       <form th:action="@{/user/profile}" method="post" th:object="${profileForm}">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-        <h2 class="section-kicker">Modificar perfil</h2>
-        <p class="success" th:if="${param.saved}">Datos actualizados.</p>
         <div class="form-grid two">
           <div class="field"><label>Nombre</label><input th:field="*{firstName}" required></div>
           <div class="field"><label>Apellido</label><input th:field="*{lastName}" required></div>
@@ -35,6 +62,16 @@
         </div>
         <button class="btn full" type="submit">Guardar Cambios</button>
       </form>
+      <div class="profile-logout">
+        <div>
+          <strong>Cerrar sesión</strong>
+          <p>Salí de tu cuenta en este dispositivo.</p>
+        </div>
+        <form th:action="@{/logout}" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+          <button class="btn danger full" type="submit">Cerrar sesión</button>
+        </form>
+      </div>
     </section>
   </div>
 </main>

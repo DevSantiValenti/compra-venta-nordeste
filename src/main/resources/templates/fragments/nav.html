@@ -2,6 +2,6 @@
   <a th:classappend="${currentPath == '/' || #strings.startsWith(currentPath, '/categoria') || #strings.startsWith(currentPath, '/producto')} ? ' active' : ''" th:href="@{/}"><span>⌂</span><small>Inicio</small></a>
   <a th:if="${currentUser == null}" th:classappend="${#strings.startsWith(currentPath, '/login') || #strings.startsWith(currentPath, '/register')} ? ' active' : ''" th:href="@{/login}"><span>♙</span><small>Entrar</small></a>
   <a th:if="${currentUser != null}" th:classappend="${#strings.startsWith(currentPath, '/products/new')} ? ' active' : ''" th:href="@{/products/new}"><span>＋</span><small>Publicar</small></a>
-  <a th:if="${currentUser != null}" th:classappend="${#strings.startsWith(currentPath, '/products/my')} ? ' active' : ''" th:href="@{/products/my}"><span>▤</span><small>Mis avisos</small></a>
+  <a th:if="${currentUser != null}" th:classappend="${#strings.startsWith(currentPath, '/products/my') || #strings.startsWith(currentPath, '/products/edit')} ? ' active' : ''" th:href="@{/products/my}"><span>▤</span><small>Mis avisos</small></a>
   <a th:if="${currentUser != null}" th:classappend="${#strings.startsWith(currentPath, '/user')} ? ' active' : ''" th:href="@{/user/dashboard}"><span>♙</span><small>Perfil</small></a>
 </nav>

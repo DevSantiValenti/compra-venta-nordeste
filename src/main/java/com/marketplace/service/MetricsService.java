@@ -10,13 +10,19 @@ import com.marketplace.repository.ProductViewEventRepository;
 import com.marketplace.repository.SiteVisitEventRepository;
 import com.marketplace.repository.WhatsappClickEventRepository;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class MetricsService {
+    private static final String SITE_VISIT_RECORDED = "metrics.siteVisitRecorded";
+    private static final String VIEWED_PRODUCTS = "metrics.viewedProducts";
+
     private final ProductRepository productRepository;
     private final ProductViewEventRepository productViewEventRepository;
     private final WhatsappClickEventRepository whatsappClickEventRepository;
@@ -39,6 +45,9 @@ public class MetricsService {
 
     @Transactional
     public void recordProductView(Product product, HttpServletRequest request) {
+        if (product.getId() != null && alreadyViewedProduct(product.getId(), request)) {
+            return;
+        }
         product.setViewsCount(product.getViewsCount() + 1);
         ProductViewEvent event = new ProductViewEvent();
         event.setProduct(product);
@@ -67,11 +76,16 @@ public class MetricsService {
         if (request.getRequestURI().contains(".")) {
             return;
         }
+        HttpSession session = request.getSession();
+        if (Boolean.TRUE.equals(session.getAttribute(SITE_VISIT_RECORDED))) {
+            return;
+        }
         SiteVisitEvent event = new SiteVisitEvent();
         event.setPath(request.getRequestURI());
         event.setIpAddress(request.getRemoteAddr());
         event.setUserAgent(request.getHeader("User-Agent"));
         siteVisitEventRepository.save(event);
+        session.setAttribute(SITE_VISIT_RECORDED, true);
     }
 
     public long totalProductViews() {
@@ -80,5 +94,16 @@ public class MetricsService {
 
     public long totalWhatsappClicks() {
         return productRepository.sumWhatsappClicksCount();
+    }
+
+    @SuppressWarnings("unchecked")
+    private boolean alreadyViewedProduct(Long productId, HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        Set<Long> viewedProducts = (Set<Long>) session.getAttribute(VIEWED_PRODUCTS);
+        if (viewedProducts == null) {
+            viewedProducts = new HashSet<>();
+            session.setAttribute(VIEWED_PRODUCTS, viewedProducts);
+        }
+        return !viewedProducts.add(productId);
     }
 }

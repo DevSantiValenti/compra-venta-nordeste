@@ -10,6 +10,7 @@ public record AppProperties(
 ) {
     public record Upload(
         String productsDir,
+        String avatarsDir,
         DataSize maxFileSize,
         int imageMaxWidth,
         int thumbnailWidth

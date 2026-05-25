@@ -8,6 +8,8 @@
   <meta property="og:title" th:content="${metaTitle}">
   <meta property="og:description" th:content="${metaDescription}">
   <meta property="og:image" th:if="${ogImage != ''}" th:content="${ogImage}">
+  <meta name="_csrf" th:content="${_csrf.token}">
+  <meta name="_csrf_header" th:content="${_csrf.headerName}">
   <link rel="stylesheet" th:href="@{/css/app.css}">
   <script defer th:src="@{/js/app.js}"></script>
 </head>
@@ -41,7 +43,13 @@
       </div>
 
       <div class="seller-box">
-        <div class="avatar" th:text="${product.seller.initials}">SV</div>
+        <div class="avatar">
+          <img th:if="${product.seller.avatarUrl != null && !product.seller.avatarUrl.isBlank()}"
+               th:src="${product.seller.avatarUrl}"
+               th:alt="${'Foto de ' + product.seller.fullName}">
+          <span th:if="${product.seller.avatarUrl == null || product.seller.avatarUrl.isBlank()}"
+                th:text="${product.seller.initials}">SV</span>
+        </div>
         <div>
           <strong th:text="${product.seller.fullName}">Vendedor</strong>
           <p class="meta">En la plataforma desde 2026</p>
@@ -51,11 +59,11 @@
       <a class="btn whatsapp" th:href="@{/producto/{slug}/whatsapp(slug=${product.slug})}">☏ Contactar por WhatsApp</a>
 
       <div class="detail-actions">
-        <button class="detail-action favorite-action" type="button"
-                th:attr="data-favorite-product=${product.slug}"
-                aria-pressed="false">
-          <span class="detail-action-icon">♡</span>
-          <span class="detail-action-label">Favorito</span>
+        <button th:class="${favoriteActive} ? 'detail-action favorite-action active' : 'detail-action favorite-action'"
+                type="button"
+                th:attr="data-favorite-product=${product.slug}, data-favorite-authenticated=${currentUser != null}, aria-pressed=${favoriteActive}">
+          <span class="detail-action-icon" th:text="${favoriteActive} ? '♥' : '♡'">♡</span>
+          <span class="detail-action-label" th:text="${favoriteActive} ? 'Guardado' : 'Favorito'">Favorito</span>
         </button>
         <button class="detail-action share-action" type="button"
                 th:attr="data-share-title=${product.title}, data-share-url=@{/producto/{slug}(slug=${product.slug})}">

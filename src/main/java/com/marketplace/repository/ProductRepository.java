@@ -38,7 +38,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("""
         select p from Product p
         where p.status = com.marketplace.entity.ProductStatus.ACTIVE
-          and (:categoryId is null or p.category.id = :categoryId)
+          and (:categoryFilterActive = false or p.category.id in :categoryIds)
           and (:q is null or lower(p.title) like lower(concat('%', :q, '%')) or lower(p.description) like lower(concat('%', :q, '%')))
           and (:minPrice is null or p.price >= :minPrice)
           and (:maxPrice is null or p.price <= :maxPrice)
@@ -51,7 +51,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         """)
     Page<Product> searchActive(
         @Param("q") String q,
-        @Param("categoryId") Long categoryId,
+        @Param("categoryIds") List<Long> categoryIds,
+        @Param("categoryFilterActive") boolean categoryFilterActive,
         @Param("minPrice") BigDecimal minPrice,
         @Param("maxPrice") BigDecimal maxPrice,
         @Param("city") String city,

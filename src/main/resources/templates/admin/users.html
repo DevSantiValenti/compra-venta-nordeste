@@ -7,8 +7,16 @@
   <section class="hero"><h1>Usuarios</h1></section>
   <section class="table-list">
     <a class="row-card" th:each="user : ${users}" th:href="@{/admin/users/{id}(id=${user.id})}">
-      <strong th:text="${user.fullName}">Usuario</strong>
-      <p class="meta" th:text="${user.email + ' · ' + user.role + ' · bloqueado: ' + user.blocked}">Email</p>
+      <div class="avatar user-avatar">
+        <img th:if="${user.avatarUrl != null && !user.avatarUrl.isBlank()}"
+             th:src="${user.avatarUrl}"
+             th:alt="${'Foto de ' + user.fullName}">
+        <span th:if="${user.avatarUrl == null || user.avatarUrl.isBlank()}" th:text="${user.initials}">UN</span>
+      </div>
+      <div>
+        <strong th:text="${user.fullName}">Usuario</strong>
+        <p class="meta" th:text="${user.email + ' · ' + user.role + ' · bloqueado: ' + user.blocked}">Email</p>
+      </div>
     </a>
   </section>
 </main>
