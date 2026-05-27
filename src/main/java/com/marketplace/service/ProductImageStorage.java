@@ -57,6 +57,13 @@ public class ProductImageStorage {
         return saved;
     }
 
+    public void deleteForProduct(Product product) {
+        List<ProductImage> images = productImageRepository.findByProductOrderByOrderIndexAsc(product);
+        images.forEach(this::deleteFiles);
+        productImageRepository.deleteAll(images);
+        product.getImages().clear();
+    }
+
     private ProductImage saveImage(Product product, MultipartFile file, int order, boolean main) {
         try (InputStream inputStream = file.getInputStream()) {
             BufferedImage source = ImageIO.read(inputStream);
@@ -106,5 +113,26 @@ public class ProductImageStorage {
 
     private void writeJpg(BufferedImage image, Path path) throws IOException {
         ImageIO.write(image, "jpg", path.toFile());
+    }
+
+    private void deleteFiles(ProductImage image) {
+        deleteIfInsideRoot(image.getFileName());
+        String thumbName = image.getFileName().replaceFirst("\\.jpg$", "-thumb.jpg");
+        deleteIfInsideRoot(thumbName);
+    }
+
+    private void deleteIfInsideRoot(String fileName) {
+        if (fileName == null || fileName.isBlank()) {
+            return;
+        }
+        Path candidate = root.resolve(fileName).normalize();
+        if (!candidate.startsWith(root)) {
+            return;
+        }
+        try {
+            Files.deleteIfExists(candidate);
+        } catch (IOException ignored) {
+            // No bloqueamos la eliminación lógica si el archivo físico ya no existe o no se puede borrar.
+        }
     }
 }

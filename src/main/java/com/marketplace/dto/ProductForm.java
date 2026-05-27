@@ -1,6 +1,7 @@
 package com.marketplace.dto;
 
 import com.marketplace.entity.ProductCondition;
+import com.marketplace.entity.ProductCurrency;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -22,10 +23,14 @@ public class ProductForm {
     private BigDecimal price;
 
     @NotNull
+    private ProductCurrency currency = ProductCurrency.ARS;
+
+    @NotNull
     private ProductCondition condition = ProductCondition.USED;
 
     private String brand;
     private String size;
+    private String wheelSize;
 
     @NotBlank
     private String city;

@@ -1,4 +1,36 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const expectedPageSize = () => window.matchMedia("(max-width: 759px)").matches ? 12 : 24;
+  const syncPageSizeInputs = () => {
+    const size = expectedPageSize();
+    document.querySelectorAll("[data-page-size-input]").forEach((input) => {
+      input.value = String(size);
+    });
+    return size;
+  };
+
+  const currentExpectedPageSize = syncPageSizeInputs();
+
+  document.querySelectorAll("[data-responsive-pagination]").forEach((form) => {
+    form.addEventListener("submit", () => {
+      const pageSize = syncPageSizeInputs();
+      const pageInput = form.querySelector('input[name="page"]');
+      const pageSizeInput = form.querySelector("[data-page-size-input]");
+      if (pageInput) pageInput.value = "0";
+      if (pageSizeInput) pageSizeInput.value = String(pageSize);
+    });
+  });
+
+  if (document.querySelector("[data-responsive-pagination]") && window.location.pathname === "/") {
+    const url = new URL(window.location.href);
+    const currentPageSize = url.searchParams.get("pageSize");
+    if (currentPageSize !== String(currentExpectedPageSize) && (currentPageSize || currentExpectedPageSize === 12)) {
+      url.searchParams.set("pageSize", String(currentExpectedPageSize));
+      url.searchParams.set("page", "0");
+      window.location.replace(url.toString());
+      return;
+    }
+  }
+
   document.querySelectorAll("[data-filter-toggle]").forEach((button) => {
     button.addEventListener("click", () => {
       const target = document.querySelector(button.getAttribute("data-filter-toggle"));

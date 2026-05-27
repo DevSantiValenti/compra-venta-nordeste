@@ -4,6 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Favoritos | Compra y Venta NEA</title>
+  <link rel="icon" type="image/png" th:href="@{/img/favicon.png}">
+  <link rel="apple-touch-icon" th:href="@{/img/favicon.png}">
   <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
 <body>
@@ -30,13 +32,14 @@
         <div class="product-card-body">
           <div class="location" th:text="${'⌖ ' + product.city}">⌖ Ciudad</div>
           <h2 th:text="${product.title}">Producto</h2>
-          <p class="price" th:text="${'$' + #numbers.formatDecimal(product.price, 0, 'POINT', 0, 'COMMA')}">$0</p>
+          <p class="price" th:text="${product.currency != null && product.currency.name() == 'USD' ? 'U$D ' + #numbers.formatDecimal(product.price, 0, 'POINT', 0, 'COMMA') : '$' + #numbers.formatDecimal(product.price, 0, 'POINT', 0, 'COMMA')}">$0</p>
         </div>
       </a>
     </section>
     <section class="empty-card" th:if="${#lists.isEmpty(products)}">No tenes productos en favoritos.</section>
   </div>
 </main>
+<div th:replace="~{fragments/footer :: siteFooter}"></div>
 <div th:replace="~{fragments/nav :: bottomNav}"></div>
 </body>
 </html>

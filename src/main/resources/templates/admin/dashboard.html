@@ -4,6 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Admin | Ciclismo NEA</title>
+  <link rel="icon" type="image/png" th:href="@{/img/favicon.png}">
+  <link rel="apple-touch-icon" th:href="@{/img/favicon.png}">
   <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
 <body>
@@ -71,7 +73,7 @@
       <p class="meta" th:if="${#lists.isEmpty(stats.topWhatsapp)}">Sin clicks registrados.</p>
     </article>
     <article class="admin-card">
-      <h2>Categorias con mas publicaciones</h2>
+      <div class="section-row compact"><h2>Categorias con mas publicaciones</h2><a class="btn secondary small" th:href="@{/admin/categories}">Administrar</a></div>
       <div class="admin-list-row" th:each="row : ${stats.categories}">
         <span th:text="${row[0]}">Categoria</span>
         <strong th:text="${row[1]}">0</strong>
@@ -80,5 +82,6 @@
     </article>
   </section>
 </main>
+<div th:replace="~{fragments/footer :: siteFooter}"></div>
 </body>
 </html>

@@ -2,6 +2,7 @@ package com.marketplace.repository;
 
 import com.marketplace.entity.Product;
 import com.marketplace.entity.ProductCondition;
+import com.marketplace.entity.ProductCurrency;
 import com.marketplace.entity.ProductStatus;
 import com.marketplace.entity.User;
 import java.math.BigDecimal;
@@ -28,6 +29,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     long countBySellerAndStatus(User seller, ProductStatus status);
 
+    long countByCategoryId(Long categoryId);
+
     long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 
     long countByStatus(ProductStatus status);
@@ -42,11 +45,13 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
           and (:q is null or lower(p.title) like lower(concat('%', :q, '%')) or lower(p.description) like lower(concat('%', :q, '%')))
           and (:minPrice is null or p.price >= :minPrice)
           and (:maxPrice is null or p.price <= :maxPrice)
+          and (:currency is null or p.currency = :currency or (:currency = com.marketplace.entity.ProductCurrency.ARS and p.currency is null))
           and (:city is null or lower(p.city) like lower(concat('%', :city, '%')))
           and (:province is null or lower(p.province) like lower(concat('%', :province, '%')))
           and (:condition is null or p.condition = :condition)
           and (:brand is null or lower(p.brand) like lower(concat('%', :brand, '%')))
           and (:size is null or lower(p.size) like lower(concat('%', :size, '%')))
+          and (:wheelSize is null or lower(p.wheelSize) like lower(concat('%', :wheelSize, '%')))
         order by p.featured desc, p.createdAt desc
         """)
     Page<Product> searchActive(
@@ -55,11 +60,13 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         @Param("categoryFilterActive") boolean categoryFilterActive,
         @Param("minPrice") BigDecimal minPrice,
         @Param("maxPrice") BigDecimal maxPrice,
+        @Param("currency") ProductCurrency currency,
         @Param("city") String city,
         @Param("province") String province,
         @Param("condition") ProductCondition condition,
         @Param("brand") String brand,
         @Param("size") String size,
+        @Param("wheelSize") String wheelSize,
         Pageable pageable
     );
 

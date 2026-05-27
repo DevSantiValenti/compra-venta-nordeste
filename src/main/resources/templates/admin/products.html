@@ -1,22 +1,54 @@
 <!doctype html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Publicaciones</title><link rel="stylesheet" th:href="@{/css/app.css}"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Publicaciones</title><link rel="icon" type="image/png" th:href="@{/img/favicon.png}"><link rel="apple-touch-icon" th:href="@{/img/favicon.png}"><link rel="stylesheet" th:href="@{/css/app.css}"><script defer th:src="@{/js/app.js}"></script></head>
 <body>
 <div th:replace="~{fragments/header :: adminTopbar}"></div>
 <main class="app-shell">
   <section class="hero"><h1>Publicaciones</h1></section>
   <section class="table-list">
     <article class="row-card" th:each="product : ${products.content}">
-      <strong th:text="${product.title}">Producto</strong>
-      <p class="meta" th:text="${product.status + ' · ' + product.seller.email + ' · reportes: ' + product.reportCount}">Estado</p>
+      <img th:if="${product.mainImage != null}" th:src="${product.mainImage.filePath}" th:alt="${product.title}">
+      <div th:if="${product.mainImage == null}" class="row-thumb"></div>
+      <div>
+        <strong th:text="${product.title}">Producto</strong>
+        <p class="price" th:text="${product.currency != null && product.currency.name() == 'USD' ? 'U$D ' + #numbers.formatDecimal(product.price, 0, 'POINT', 0, 'COMMA') : '$' + #numbers.formatDecimal(product.price, 0, 'POINT', 0, 'COMMA')}">$0</p>
+        <p class="meta" th:text="${product.status + ' · ' + product.seller.email + ' · reportes: ' + product.reportCount}">Estado</p>
+      </div>
       <div class="row-actions">
         <a class="btn secondary" th:href="@{/admin/products/{id}(id=${product.id})}">Detalle</a>
-        <form th:action="@{/admin/products/{id}/hide(id=${product.id})}" method="post"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><button class="btn secondary" type="submit">Ocultar</button></form>
-        <form th:action="@{/admin/products/{id}/reactivate(id=${product.id})}" method="post"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><button class="btn" type="submit">Reactivar</button></form>
-        <form th:action="@{/admin/products/{id}/delete(id=${product.id})}" method="post"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><button class="btn danger" type="submit">Eliminar</button></form>
+        <form th:if="${product.status.name() != 'HIDDEN' && product.status.name() != 'DELETED'}" th:action="@{/admin/products/{id}/hide(id=${product.id})}" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+          <input type="hidden" name="returnTo" value="/admin/products">
+          <button class="btn secondary js-confirm-action" type="submit"
+                  data-confirm-icon="Ⅱ"
+                  data-confirm-title="Ocultar publicación"
+                  th:attr="data-confirm-body=${'¿Querés ocultar &quot;' + product.title + '&quot;? Dejará de aparecer en el marketplace.'}"
+                  data-confirm-label="Ocultar">Ocultar</button>
+        </form>
+        <form th:if="${product.status.name() != 'ACTIVE' && product.status.name() != 'DELETED'}" th:action="@{/admin/products/{id}/reactivate(id=${product.id})}" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+          <input type="hidden" name="returnTo" value="/admin/products">
+          <button class="btn js-confirm-action" type="submit"
+                  data-confirm-icon="✓"
+                  data-confirm-title="Reactivar publicación"
+                  th:attr="data-confirm-body=${'¿Querés reactivar &quot;' + product.title + '&quot;? Volverá a aparecer como activa.'}"
+                  data-confirm-label="Reactivar">Reactivar</button>
+        </form>
+        <form th:if="${product.status.name() != 'DELETED'}" th:action="@{/admin/products/{id}/delete(id=${product.id})}" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+          <input type="hidden" name="returnTo" value="/admin/products">
+          <button class="btn danger js-confirm-action" type="submit"
+                  data-confirm-icon="×"
+                  data-confirm-title="Eliminar publicación"
+                  th:attr="data-confirm-body=${'¿Seguro que querés eliminar &quot;' + product.title + '&quot;? También se borrarán sus imágenes asociadas.'}"
+                  data-confirm-label="Eliminar"
+                  data-confirm-danger="true">Eliminar</button>
+        </form>
       </div>
     </article>
   </section>
 </main>
+<div th:replace="~{fragments/confirm-modal :: confirmModal}"></div>
+<div th:replace="~{fragments/footer :: siteFooter}"></div>
 </body>
 </html>

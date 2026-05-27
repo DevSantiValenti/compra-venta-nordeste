@@ -53,6 +53,10 @@ public class Product {
     private BigDecimal price;
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 10)
+    private ProductCurrency currency = ProductCurrency.ARS;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "`condition`", nullable = false, length = 20)
     private ProductCondition condition = ProductCondition.USED;
 
@@ -61,6 +65,9 @@ public class Product {
 
     @Column(length = 60)
     private String size;
+
+    @Column(length = 60)
+    private String wheelSize;
 
     @Column(nullable = false, length = 100)
     private String city;

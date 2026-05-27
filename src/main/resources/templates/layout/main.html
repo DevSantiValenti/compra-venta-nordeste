@@ -5,10 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title th:text="${metaTitle} ?: ${siteName}">Ciclismo NEA</title>
   <meta name="description" th:content="${metaDescription} ?: 'Marketplace de ciclismo del Nordeste Argentino'">
+  <link rel="icon" type="image/png" th:href="@{/img/favicon.png}">
+  <link rel="apple-touch-icon" th:href="@{/img/favicon.png}">
   <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
 <body>
 <div th:replace="~{fragments/header :: topbar}"></div>
 <main class="app-shell"></main>
+<div th:replace="~{fragments/footer :: siteFooter}"></div>
 </body>
 </html>

@@ -7,7 +7,9 @@
        aria-label="Volver">
       <span class="sr-only">Volver</span>
     </a>
-    <a class="brand" th:href="@{/}">COMPRA Y VENTA<span>NEA</span></a>
+    <a class="brand" th:href="@{/}" aria-label="Inicio Bike Nordeste">
+      <img th:src="@{/img/brand-logo.png}" alt="Bike Nordeste">
+    </a>
     <nav class="top-actions">
       <a th:classappend="${currentPath == '/' || #strings.startsWith(currentPath, '/categoria') || #strings.startsWith(currentPath, '/producto')} ? ' active' : ''" th:href="@{/}">Inicio</a>
       <a th:if="${currentUser != null && currentUser.role.name() == 'ADMIN'}" class="admin-top-link" th:classappend="${#strings.startsWith(currentPath, '/admin')} ? ' active' : ''" th:href="@{/admin/dashboard}">Admin</a>
@@ -27,6 +29,7 @@
       <strong>Admin</strong>
       <a th:classappend="${#strings.startsWith(currentPath, '/admin/dashboard')} ? ' active' : ''" th:href="@{/admin/dashboard}">Dashboard</a>
       <a th:classappend="${#strings.startsWith(currentPath, '/admin/users')} ? ' active' : ''" th:href="@{/admin/users}">Usuarios</a>
+      <a th:classappend="${#strings.startsWith(currentPath, '/admin/categories')} ? ' active' : ''" th:href="@{/admin/categories}">Categorías</a>
       <a th:classappend="${#strings.startsWith(currentPath, '/admin/products')} ? ' active' : ''" th:href="@{/admin/products}">Publicaciones</a>
       <a th:classappend="${#strings.startsWith(currentPath, '/admin/reports')} ? ' active' : ''" th:href="@{/admin/reports}">Reportes</a>
     </div>
@@ -42,10 +45,13 @@
        aria-label="Volver">
       <span class="sr-only">Volver</span>
     </a>
-    <a class="brand" th:href="@{/admin/dashboard}">COMPRA Y VENTA<span>NEA</span></a>
+    <a class="brand" th:href="@{/admin/dashboard}" aria-label="Panel Bike Nordeste">
+      <img th:src="@{/img/brand-logo.png}" alt="Bike Nordeste">
+    </a>
     <nav class="top-actions">
       <a th:classappend="${#strings.startsWith(currentPath, '/admin/dashboard')} ? ' active' : ''" th:href="@{/admin/dashboard}">Panel</a>
       <a th:classappend="${#strings.startsWith(currentPath, '/admin/users')} ? ' active' : ''" th:href="@{/admin/users}">Usuarios</a>
+      <a th:classappend="${#strings.startsWith(currentPath, '/admin/categories')} ? ' active' : ''" th:href="@{/admin/categories}">Categorías</a>
       <a th:classappend="${#strings.startsWith(currentPath, '/admin/products')} ? ' active' : ''" th:href="@{/admin/products}">Avisos</a>
       <a th:classappend="${#strings.startsWith(currentPath, '/admin/reports')} ? ' active' : ''" th:href="@{/admin/reports}">Reportes</a>
       <a th:classappend="${#strings.startsWith(currentPath, '/user')} ? ' active' : ''" th:href="@{/user/dashboard}">Perfil</a>
@@ -56,6 +62,7 @@
       <strong>Admin</strong>
       <a th:classappend="${#strings.startsWith(currentPath, '/admin/dashboard')} ? ' active' : ''" th:href="@{/admin/dashboard}">Dashboard</a>
       <a th:classappend="${#strings.startsWith(currentPath, '/admin/users')} ? ' active' : ''" th:href="@{/admin/users}">Usuarios</a>
+      <a th:classappend="${#strings.startsWith(currentPath, '/admin/categories')} ? ' active' : ''" th:href="@{/admin/categories}">Categorías</a>
       <a th:classappend="${#strings.startsWith(currentPath, '/admin/products')} ? ' active' : ''" th:href="@{/admin/products}">Publicaciones</a>
       <a th:classappend="${#strings.startsWith(currentPath, '/admin/reports')} ? ' active' : ''" th:href="@{/admin/reports}">Reportes</a>
       <a th:classappend="${#strings.startsWith(currentPath, '/user')} ? ' active' : ''" th:href="@{/user/dashboard}">Perfil</a>

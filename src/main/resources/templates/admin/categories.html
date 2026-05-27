@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Categorías</title>
+  <link rel="icon" type="image/png" th:href="@{/img/favicon.png}">
+  <link rel="apple-touch-icon" th:href="@{/img/favicon.png}">
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+  <script defer th:src="@{/js/app.js}"></script>
+</head>
+<body>
+<div th:replace="~{fragments/header :: adminTopbar}"></div>
+<main class="app-shell">
+  <section class="hero admin-hero section-row">
+    <div>
+      <p class="eyebrow">Admin</p>
+      <h1>Categorías</h1>
+      <p>Administrá las categorías que aparecen en filtros y en el formulario de publicación.</p>
+    </div>
+    <a class="btn" th:href="@{/admin/categories/new}">Nueva categoría</a>
+  </section>
+
+  <section class="table-list">
+    <article class="row-card category-admin-row" th:each="category : ${adminCategories}">
+      <div class="category-admin-icon" th:text="${#strings.isEmpty(category.icon) ? '•' : category.icon}">•</div>
+      <div>
+        <strong th:text="${category.name}">Categoría</strong>
+        <p class="meta">
+          <span th:text="${'/' + category.slug}">/slug</span>
+          <span aria-hidden="true"> · </span>
+          <span th:text="${'orden ' + category.displayOrder}">orden 0</span>
+          <span aria-hidden="true"> · </span>
+          <span th:text="${productCounts[category.id] + ' publicaciones'}">0 publicaciones</span>
+        </p>
+      </div>
+      <div class="row-actions">
+        <span class="status-pill" th:classappend="${category.active ? '' : ' status-hidden'}" th:text="${category.active ? 'Activa' : 'Inactiva'}">Activa</span>
+        <a class="btn secondary" th:href="@{/admin/categories/{id}/edit(id=${category.id})}">Editar</a>
+        <form th:if="${category.active}" th:action="@{/admin/categories/{id}/deactivate(id=${category.id})}" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+          <button class="btn secondary js-confirm-action" type="submit"
+                  data-confirm-icon="Ⅱ"
+                  data-confirm-title="Desactivar categoría"
+                  th:attr="data-confirm-body=${'¿Querés desactivar &quot;' + category.name + '&quot;? No aparecerá en filtros ni al crear publicaciones nuevas.'}"
+                  data-confirm-label="Desactivar">Desactivar</button>
+        </form>
+        <form th:if="${!category.active}" th:action="@{/admin/categories/{id}/activate(id=${category.id})}" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+          <button class="btn js-confirm-action" type="submit"
+                  data-confirm-icon="✓"
+                  data-confirm-title="Activar categoría"
+                  th:attr="data-confirm-body=${'¿Querés activar &quot;' + category.name + '&quot;? Volverá a estar disponible.'}"
+                  data-confirm-label="Activar">Activar</button>
+        </form>
+        <form th:action="@{/admin/categories/{id}/delete(id=${category.id})}" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+          <button class="btn danger js-confirm-action" type="submit"
+                  data-confirm-icon="×"
+                  data-confirm-title="Eliminar categoría"
+                  th:attr="data-confirm-body=${productCounts[category.id] > 0 ? 'Esta categoría tiene publicaciones. Se desactivará para conservar el historial.' : '¿Seguro que querés eliminar &quot;' + category.name + '&quot;?'}"
+                  data-confirm-label="Eliminar"
+                  data-confirm-danger="true">Eliminar</button>
+        </form>
+      </div>
+    </article>
+    <article class="empty-card" th:if="${#lists.isEmpty(adminCategories)}">Todavía no hay categorías.</article>
+  </section>
+</main>
+<div th:replace="~{fragments/confirm-modal :: confirmModal}"></div>
+<div th:replace="~{fragments/footer :: siteFooter}"></div>
+</body>
+</html>

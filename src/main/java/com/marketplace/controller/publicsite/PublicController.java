@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
@@ -65,9 +66,19 @@ public class PublicController {
     }
 
     @GetMapping("/")
-    public String home(@ModelAttribute ProductSearch search, Model model) {
-        model.addAttribute("products", productService.search(search, PageRequest.of(0, 24)));
+    public String home(
+        @ModelAttribute ProductSearch search,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(required = false) Integer pageSize,
+        Model model,
+        HttpServletRequest request
+    ) {
+        int resolvedPageSize = resolvePageSize(pageSize, request);
+        int pageNumber = Math.max(page, 0);
+        model.addAttribute("products", productService.search(search, PageRequest.of(pageNumber, resolvedPageSize)));
         model.addAttribute("search", search);
+        model.addAttribute("currentPage", pageNumber);
+        model.addAttribute("pageSize", resolvedPageSize);
         model.addAttribute("metaTitle", appProperties.siteName() + " | Bicis y componentes del Nordeste");
         model.addAttribute("metaDescription", "Comprá y vendé bicicletas, componentes, indumentaria y accesorios de ciclismo en el Nordeste Argentino.");
         return "public/home";
@@ -164,5 +175,17 @@ public class PublicController {
                 .append("</lastmod></url>\n"));
         xml.append("</urlset>");
         return xml.toString();
+    }
+
+    private int resolvePageSize(Integer requestedSize, HttpServletRequest request) {
+        if (requestedSize != null) {
+            return requestedSize <= 12 ? 12 : 24;
+        }
+        String userAgent = request.getHeader("User-Agent");
+        if (userAgent == null) {
+            return 24;
+        }
+        String normalized = userAgent.toLowerCase();
+        return normalized.contains("mobi") || normalized.contains("android") || normalized.contains("iphone") ? 12 : 24;
     }
 }

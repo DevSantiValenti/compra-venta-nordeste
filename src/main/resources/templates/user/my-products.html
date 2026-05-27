@@ -4,6 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Mis Avisos | Compra y Venta NEA</title>
+  <link rel="icon" type="image/png" th:href="@{/img/favicon.png}">
+  <link rel="apple-touch-icon" th:href="@{/img/favicon.png}">
   <link rel="stylesheet" th:href="@{/css/app.css}">
   <script defer th:src="@{/js/app.js}"></script>
 </head>
@@ -25,7 +27,7 @@
         <div th:if="${product.mainImage == null}" class="row-thumb"></div>
         <div>
           <strong th:text="${product.title}">Producto</strong>
-          <p class="price" th:text="${'$' + #numbers.formatDecimal(product.price, 0, 'POINT', 0, 'COMMA')}">$0</p>
+          <p class="price" th:text="${product.currency != null && product.currency.name() == 'USD' ? 'U$D ' + #numbers.formatDecimal(product.price, 0, 'POINT', 0, 'COMMA') : '$' + #numbers.formatDecimal(product.price, 0, 'POINT', 0, 'COMMA')}">$0</p>
           <p class="meta" th:text="${'⊙ ' + product.viewsCount + '   ☏ ' + product.whatsappClicksCount}">Metricas</p>
         </div>
         <div class="row-actions">
@@ -36,11 +38,16 @@
           <form th:action="@{/products/{id}/sold(id=${product.id})}" method="post">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <input type="hidden" name="returnTo" value="/products/my">
-            <button type="submit" class="action-button sold js-confirm-action" data-icon="$" aria-label="Marcar como vendido"
-                    data-confirm-icon="$"
-                    data-confirm-title="Marcar como vendido"
-                    th:attr="data-confirm-body=${'¿Querés marcar &quot;' + product.title + '&quot; como vendido?'}"
-                    data-confirm-label="Marcar vendido"><span>Vendido</span></button>
+            <button type="submit"
+                    th:class="${product.status.name() == 'SOLD' ? 'action-button activate js-confirm-action' : 'action-button sold js-confirm-action'}"
+                    th:attr="data-icon=${product.status.name() == 'SOLD' ? '✓' : '$'},
+                             aria-label=${product.status.name() == 'SOLD' ? 'Quitar vendido' : 'Marcar como vendido'},
+                             data-confirm-icon=${product.status.name() == 'SOLD' ? '✓' : '$'},
+                             data-confirm-title=${product.status.name() == 'SOLD' ? 'Quitar vendido' : 'Marcar como vendido'},
+                             data-confirm-body=${product.status.name() == 'SOLD' ? 'La publicación volverá a estar activa.' : '¿Querés marcar esta publicación como vendida?'},
+                             data-confirm-label=${product.status.name() == 'SOLD' ? 'Activar' : 'Marcar vendido'}">
+              <span th:text="${product.status.name() == 'SOLD' ? 'Activar' : 'Vendido'}">Vendido</span>
+            </button>
           </form>
           <form th:action="@{/products/{id}/toggle-active(id=${product.id})}" method="post">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
@@ -72,6 +79,7 @@
     </section>
   </div>
 </main>
+<div th:replace="~{fragments/footer :: siteFooter}"></div>
 <div th:replace="~{fragments/nav :: bottomNav}"></div>
 <div th:replace="~{fragments/confirm-modal :: confirmModal}"></div>
 </body>

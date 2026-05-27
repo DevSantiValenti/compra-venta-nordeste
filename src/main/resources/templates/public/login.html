@@ -4,6 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Ingresar | Compra y Venta NEA</title>
+  <link rel="icon" type="image/png" th:href="@{/img/favicon.png}">
+  <link rel="apple-touch-icon" th:href="@{/img/favicon.png}">
   <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
 <body>
@@ -32,5 +34,6 @@
     <p class="auth-footer">¿No tenes cuenta? <a th:href="@{/register}">Registrate gratis</a></p>
   </section>
 </main>
+<div th:replace="~{fragments/footer :: siteFooter}"></div>
 </body>
 </html>

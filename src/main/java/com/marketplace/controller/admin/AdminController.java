@@ -104,21 +104,21 @@ public class AdminController {
     }
 
     @PostMapping("/admin/products/{id}/hide")
-    public String hideProduct(@PathVariable Long id) {
+    public String hideProduct(@PathVariable Long id, @RequestParam(defaultValue = "/admin/products") String returnTo) {
         productService.adminSetStatus(id, ProductStatus.HIDDEN);
-        return "redirect:/admin/products";
+        return "redirect:" + safeAdminReturnTo(returnTo);
     }
 
     @PostMapping("/admin/products/{id}/reactivate")
-    public String reactivateProduct(@PathVariable Long id) {
+    public String reactivateProduct(@PathVariable Long id, @RequestParam(defaultValue = "/admin/products") String returnTo) {
         productService.adminSetStatus(id, ProductStatus.ACTIVE);
-        return "redirect:/admin/products";
+        return "redirect:" + safeAdminReturnTo(returnTo);
     }
 
     @PostMapping("/admin/products/{id}/delete")
-    public String deleteProduct(@PathVariable Long id) {
+    public String deleteProduct(@PathVariable Long id, @RequestParam(defaultValue = "/admin/products") String returnTo) {
         productService.adminSetStatus(id, ProductStatus.DELETED);
-        return "redirect:/admin/products";
+        return "redirect:" + safeAdminReturnTo(returnTo);
     }
 
     @GetMapping("/admin/reports")
@@ -143,5 +143,12 @@ public class AdminController {
     public String rejectReport(@PathVariable Long id, @RequestParam(required = false) String adminComment) {
         reportService.reject(id, currentUserService.requireUser(), adminComment);
         return "redirect:/admin/reports";
+    }
+
+    private String safeAdminReturnTo(String returnTo) {
+        if (returnTo == null || returnTo.isBlank() || !returnTo.startsWith("/admin/") || returnTo.startsWith("//")) {
+            return "/admin/products";
+        }
+        return returnTo;
     }
 }

@@ -4,6 +4,7 @@ import com.marketplace.dto.ProductForm;
 import com.marketplace.dto.ProductSearch;
 import com.marketplace.entity.Category;
 import com.marketplace.entity.Product;
+import com.marketplace.entity.ProductCurrency;
 import com.marketplace.entity.ProductStatus;
 import com.marketplace.entity.User;
 import com.marketplace.exception.NotFoundException;
@@ -37,11 +38,13 @@ public class ProductService {
             !activeCategoryIds.isEmpty(),
             search.getMinPrice(),
             search.getMaxPrice(),
+            search.getCurrency(),
             blankToNull(search.getCity()),
             blankToNull(search.getProvince()),
             search.getCondition(),
             blankToNull(search.getBrand()),
             blankToNull(search.getSize()),
+            blankToNull(search.getWheelSize()),
             pageable
         );
     }
@@ -105,7 +108,12 @@ public class ProductService {
 
     @Transactional
     public void markSold(Long id, User seller) {
-        getOwned(id, seller).setStatus(ProductStatus.SOLD);
+        Product product = getOwned(id, seller);
+        if (product.getStatus() == ProductStatus.SOLD) {
+            product.setStatus(ProductStatus.ACTIVE);
+            return;
+        }
+        product.setStatus(ProductStatus.SOLD);
     }
 
     @Transactional
@@ -122,12 +130,18 @@ public class ProductService {
 
     @Transactional
     public void deactivate(Long id, User seller) {
-        getOwned(id, seller).setStatus(ProductStatus.DELETED);
+        Product product = getOwned(id, seller);
+        productImageStorage.deleteForProduct(product);
+        product.setStatus(ProductStatus.DELETED);
     }
 
     @Transactional
     public void adminSetStatus(Long id, ProductStatus status) {
-        productRepository.findById(id).orElseThrow(() -> new NotFoundException("Publicación no encontrada")).setStatus(status);
+        Product product = productRepository.findById(id).orElseThrow(() -> new NotFoundException("Publicación no encontrada"));
+        if (status == ProductStatus.DELETED) {
+            productImageStorage.deleteForProduct(product);
+        }
+        product.setStatus(status);
     }
 
     private void applyForm(Product product, ProductForm form) {
@@ -135,9 +149,11 @@ public class ProductService {
         product.setTitle(form.getTitle());
         product.setDescription(form.getDescription());
         product.setPrice(form.getPrice());
+        product.setCurrency(form.getCurrency() == null ? ProductCurrency.ARS : form.getCurrency());
         product.setCondition(form.getCondition());
         product.setBrand(form.getBrand());
         product.setSize(form.getSize());
+        product.setWheelSize(form.getWheelSize());
         product.setCity(form.getCity());
         product.setProvince(form.getProvince());
         product.setCategory(category);

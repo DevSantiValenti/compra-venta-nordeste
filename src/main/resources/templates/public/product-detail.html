@@ -10,6 +10,8 @@
   <meta property="og:image" th:if="${ogImage != ''}" th:content="${ogImage}">
   <meta name="_csrf" th:content="${_csrf.token}">
   <meta name="_csrf_header" th:content="${_csrf.headerName}">
+  <link rel="icon" type="image/png" th:href="@{/img/favicon.png}">
+  <link rel="apple-touch-icon" th:href="@{/img/favicon.png}">
   <link rel="stylesheet" th:href="@{/css/app.css}">
   <script defer th:src="@{/js/app.js}"></script>
 </head>
@@ -25,7 +27,7 @@
     <aside class="detail-panel">
       <span class="badge badge-soft" th:text="${product.condition.name() == 'NEW' ? 'Nuevo' : 'Usado'}">Nuevo</span>
       <h1 class="detail-title" th:text="${product.title}">Producto</h1>
-      <p class="detail-price" th:text="${'$' + #numbers.formatDecimal(product.price, 0, 'POINT', 0, 'COMMA')}">$0</p>
+      <p class="detail-price" th:text="${product.currency != null && product.currency.name() == 'USD' ? 'U$D ' + #numbers.formatDecimal(product.price, 0, 'POINT', 0, 'COMMA') : '$' + #numbers.formatDecimal(product.price, 0, 'POINT', 0, 'COMMA')}">$0</p>
 
       <div class="detail-specs">
         <div class="spec-row">
@@ -37,8 +39,12 @@
           <strong th:text="${product.city + ', ' + product.province}">Ubicacion</strong>
         </div>
         <div class="spec-row" th:if="${!#strings.isEmpty(product.size)}">
-          <span>Talle / rodado</span>
+          <span>Talle</span>
           <strong th:text="${product.size}">29</strong>
+        </div>
+        <div class="spec-row" th:if="${!#strings.isEmpty(product.wheelSize)}">
+          <span>Rodado</span>
+          <strong th:text="${product.wheelSize}">29</strong>
         </div>
       </div>
 
@@ -116,6 +122,7 @@
     </section>
   </div>
 </main>
+<div th:replace="~{fragments/footer :: siteFooter}"></div>
 <div th:replace="~{fragments/nav :: bottomNav}"></div>
 <div th:replace="~{fragments/confirm-modal :: confirmModal}"></div>
 </body>

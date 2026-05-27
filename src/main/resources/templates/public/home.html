@@ -7,6 +7,8 @@
   <meta name="description" th:content="${metaDescription}">
   <meta property="og:title" th:content="${metaTitle}">
   <meta property="og:description" th:content="${metaDescription}">
+  <link rel="icon" type="image/png" th:href="@{/img/favicon.png}">
+  <link rel="apple-touch-icon" th:href="@{/img/favicon.png}">
   <link rel="stylesheet" th:href="@{/css/app.css}">
   <script defer th:src="@{/js/app.js}"></script>
 </head>
@@ -14,7 +16,9 @@
 <div th:replace="~{fragments/header :: topbar}"></div>
 <main class="app-shell home-shell">
   <div class="home-contained home-layout">
-    <form class="search-panel" th:action="@{/}" method="get" th:object="${search}">
+    <form class="search-panel" th:action="@{/}" method="get" th:object="${search}" data-responsive-pagination>
+      <input type="hidden" name="page" value="0">
+      <input type="hidden" name="pageSize" th:value="${pageSize}" data-page-size-input>
       <div class="search-row">
         <input type="search" th:field="*{q}" placeholder="Buscar bicicletas, repuestos...">
         <button class="search-button" type="submit" aria-label="Buscar">⌕</button>
@@ -22,7 +26,9 @@
 
       <div class="category-strip">
         <button class="filter-toggle" type="button" data-filter-toggle="#filters">▽ Filtros</button>
-        <a class="chip" th:classappend="${#lists.isEmpty(search.categoryIds)} ? ' active' : ''" th:href="@{/}">Todo</a>
+        <a class="chip"
+           th:classappend="${#lists.isEmpty(search.categoryIds)} ? ' active' : ''"
+           th:href="@{/(page=0,pageSize=${pageSize},q=${search.q},minPrice=${search.minPrice},maxPrice=${search.maxPrice},currency=${search.currency},condition=${search.condition},city=${search.city},province=${search.province},brand=${search.brand},size=${search.size},wheelSize=${search.wheelSize})}">Todo</a>
         <label class="chip category-chip"
                th:each="category : ${categories}"
                th:classappend="${#lists.contains(search.categoryIds, category.id)} ? ' active' : ''">
@@ -38,12 +44,20 @@
 
       <div id="filters" class="filters">
         <div class="field">
-          <label>Precio min ($)</label>
+          <label>Precio min</label>
           <input th:field="*{minPrice}" type="number" min="0" placeholder="0">
         </div>
         <div class="field">
-          <label>Precio max ($)</label>
+          <label>Precio max</label>
           <input th:field="*{maxPrice}" type="number" min="0" placeholder="Sin limite">
+        </div>
+        <div class="field">
+          <label>Moneda</label>
+          <select th:field="*{currency}">
+            <option value="">Todas</option>
+            <option value="ARS">ARS</option>
+            <option value="USD">U$D</option>
+          </select>
         </div>
         <div class="field">
           <label>Condicion</label>
@@ -66,33 +80,59 @@
           <input th:field="*{brand}" placeholder="Ej. Trek">
         </div>
         <div class="field advanced-filter">
-          <label>Talle / rodado</label>
-          <input th:field="*{size}" placeholder="Ej. M, 29">
+          <label>Talle</label>
+          <input th:field="*{size}" placeholder="Ej. M, 54">
+        </div>
+        <div class="field advanced-filter">
+          <label>Rodado</label>
+          <input th:field="*{wheelSize}" placeholder="Ej. 29, 700c">
         </div>
         <div class="filters-actions">
-          <a class="btn secondary full" th:href="@{/}">Limpiar</a>
+          <a class="btn secondary full" th:href="@{/(pageSize=${pageSize})}">Limpiar</a>
           <button class="btn full" type="submit">Aplicar</button>
         </div>
       </div>
     </form>
 
-    <section class="product-grid">
-      <a class="product-card" th:each="product : ${products.content}" th:href="@{/producto/{slug}(slug=${product.slug})}">
-        <div class="product-card-media">
-          <span class="badge new-publication-badge" th:if="${product.newPublication}">Nueva Publicacion</span>
-          <span class="badge condition-badge" th:text="${product.condition.name() == 'NEW' ? 'Nuevo' : 'Usado'}">Nuevo</span>
-          <img th:if="${product.mainImage != null}" th:src="${product.mainImage.filePath}" th:alt="${product.title}" loading="lazy">
-          <div th:if="${product.mainImage == null}" class="image-placeholder"></div>
-        </div>
-        <div class="product-card-body">
-          <div class="location" th:text="${'⌖ ' + product.city}">⌖ Ciudad</div>
-          <h2 th:text="${product.title}">Producto</h2>
-          <p class="price" th:text="${'$' + #numbers.formatDecimal(product.price, 0, 'POINT', 0, 'COMMA')}">$0</p>
-        </div>
-      </a>
-    </section>
+    <div class="products-column">
+      <section class="product-grid">
+        <a class="product-card" th:each="product : ${products.content}" th:href="@{/producto/{slug}(slug=${product.slug})}">
+          <div class="product-card-media">
+            <span class="badge new-publication-badge" th:if="${product.newPublication}">Nueva Publicacion</span>
+            <span class="badge condition-badge" th:text="${product.condition.name() == 'NEW' ? 'Nuevo' : 'Usado'}">Nuevo</span>
+            <img th:if="${product.mainImage != null}" th:src="${product.mainImage.filePath}" th:alt="${product.title}" loading="lazy">
+            <div th:if="${product.mainImage == null}" class="image-placeholder"></div>
+          </div>
+          <div class="product-card-body">
+            <div class="location" th:text="${'⌖ ' + product.city}">⌖ Ciudad</div>
+            <h2 th:text="${product.title}">Producto</h2>
+            <p class="price" th:text="${product.currency != null && product.currency.name() == 'USD' ? 'U$D ' + #numbers.formatDecimal(product.price, 0, 'POINT', 0, 'COMMA') : '$' + #numbers.formatDecimal(product.price, 0, 'POINT', 0, 'COMMA')}">$0</p>
+          </div>
+        </a>
+      </section>
+
+      <article class="empty-card product-empty" th:if="${products.empty}">No hay publicaciones con esos filtros.</article>
+
+      <nav class="pagination" th:if="${products.totalPages > 1}" aria-label="Paginación de publicaciones">
+        <a class="pagination-control"
+           th:classappend="${products.first} ? ' disabled' : ''"
+           th:href="${products.first} ? '#' : @{/(page=${products.number - 1},pageSize=${pageSize},q=${search.q},categoryIds=${search.categoryIds},minPrice=${search.minPrice},maxPrice=${search.maxPrice},currency=${search.currency},condition=${search.condition},city=${search.city},province=${search.province},brand=${search.brand},size=${search.size},wheelSize=${search.wheelSize})}"
+           aria-label="Página anterior">‹</a>
+        <a class="pagination-page"
+           th:each="pageNumber : ${#numbers.sequence(0, products.totalPages - 1)}"
+           th:classappend="${pageNumber == products.number} ? ' active' : ''"
+           th:href="@{/(page=${pageNumber},pageSize=${pageSize},q=${search.q},categoryIds=${search.categoryIds},minPrice=${search.minPrice},maxPrice=${search.maxPrice},currency=${search.currency},condition=${search.condition},city=${search.city},province=${search.province},brand=${search.brand},size=${search.size},wheelSize=${search.wheelSize})}"
+           th:text="${pageNumber + 1}">1</a>
+        <a class="pagination-control"
+           th:classappend="${products.last} ? ' disabled' : ''"
+           th:href="${products.last} ? '#' : @{/(page=${products.number + 1},pageSize=${pageSize},q=${search.q},categoryIds=${search.categoryIds},minPrice=${search.minPrice},maxPrice=${search.maxPrice},currency=${search.currency},condition=${search.condition},city=${search.city},province=${search.province},brand=${search.brand},size=${search.size},wheelSize=${search.wheelSize})}"
+           aria-label="Página siguiente">›</a>
+      </nav>
+    </div>
   </div>
 </main>
+<div th:replace="~{fragments/footer :: siteFooter}"></div>
 <div th:replace="~{fragments/nav :: bottomNav}"></div>
 </body>
 </html>
+

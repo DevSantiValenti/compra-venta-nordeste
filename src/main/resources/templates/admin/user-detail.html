@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Usuario</title><link rel="stylesheet" th:href="@{/css/app.css}"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Usuario</title><link rel="icon" type="image/png" th:href="@{/img/favicon.png}"><link rel="apple-touch-icon" th:href="@{/img/favicon.png}"><link rel="stylesheet" th:href="@{/css/app.css}"></head>
 <body>
 <div th:replace="~{fragments/header :: adminTopbar}"></div>
 <main class="app-shell">
@@ -26,5 +26,6 @@
     </div>
   </section>
 </main>
+<div th:replace="~{fragments/footer :: siteFooter}"></div>
 </body>
 </html>
